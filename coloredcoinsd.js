@@ -153,16 +153,17 @@ Coloredcoinsd.prototype.verifyIssuer = function (assetId, json, cb) {
   request.post(this.coluHost + '/verify_issuer', {json: params}, handleResponse(cb))
 }
 
-Coloredcoinsd.signTx = function (unsignedTx, privateKey) {
+Coloredcoinsd.signTx = function (unsignedTx, privateKey, redeemScript) {
   var tx = bitcoin.Transaction.fromHex(unsignedTx)
   var txb = bitcoin.TransactionBuilder.fromTransaction(tx)
   var insLength = tx.ins.length
   for (var i = 0; i < insLength; i++) {
     txb.inputs[i].scriptType = null
     if (Array.isArray(privateKey)) {
-      txb.sign(i, privateKey[i])
+      redeemScript = redeemScript || []
+      txb.sign(i, privateKey[i], redeemScript[i])
     } else {
-      txb.sign(i, privateKey)
+      txb.sign(i, privateKey, redeemScript)
     }
   }
   tx = txb.build()
